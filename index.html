@@ -11,33 +11,33 @@
 
     <form action="" method="get" class="form-example">
         <div class="form-example">
-            <label for="number">Entrer le nombre de dés :</label>
+            <label for="number">Number of dice :</label>
             <input type="number" name="number" id="number" required>
         </div>
     </form>
     <br>
     <form action="" method="get" class="form-example">
       <div class="form-example">
-          <label for="ensemble">Définir les sorties des faces d'un dé :</label>
+          <label for="ensemble">Faces description of a die :</label>
           <input type="text" name="ensemble" id="ensemble" required>
       </div>
   </form>
   <br>
   <fieldset>
-      <legend>Voulez vous les stats avec reroll ?</legend>
+      <legend>Get stats with rerolls ?</legend>
 
       <div>
       <input type="checkbox" id="offensiveRerolls" name="offensiveRerolls" checked>
-      <label for="offensiveRerolls">Reroll focus sur l'attaque</label>
+      <label for="offensiveRerolls">Reroll focusing on Attack</label>
       </div>
       <div>
          <input type="checkbox" id="defensiveRerolls" name="defensiveRerolls" checked>
-         <label for="defensiveRerolls">Reroll focus sur la défense</label>
+         <label for="defensiveRerolls">Reroll focusing on Defence</label>
          </div>
    </fieldset>
 
    <fieldset>
-      <legend>Afficher les stats</legend>
+      <legend>Display Stats</legend>
 
       <div>
       <input type="checkbox" id="rerollAff" name="rerollAff" checked>
@@ -71,7 +71,7 @@
          var stats = [];
          
          document.getElementById("offensiveStats").innerHTML =
-                 "Veuillez valider vos paramètres pour lancer le calcul";
+                 "Please validate your parameters to launch the calculation";
         
 
          function displayResult(anArray, divide) {//result array, divisor for output to make it look like a percentage
@@ -235,38 +235,38 @@
 
             var sortAtt = regroupResults(resultRerollOffense);
             document.getElementById("offensiveSortedResults").innerHTML =
-                 "Reroll focus sur l'attaque : <br>" + displaySortedResult(sortAtt, 10000) + " ";
+                 "Rerolls focusing on attack : <br>" + displaySortedResult(sortAtt, 10000) + " ";
             var sortDef = regroupResults(resultRerollDefence);
             document.getElementById("defensiveSortedResults").innerHTML =
-                 "Reroll focus sur la défence : <br>" + displaySortedResult(sortDef, 10000) + " ";
+                 "Rerolls focusing on defense : <br>" + displaySortedResult(sortDef, 10000) + " ";
 
             var rawStats = regroupResults(resultNoReroll);
             document.getElementById("rawSortedResults").innerHTML =
-                 "Sans Reroll : <br>" + displaySortedResult(rawStats, 10000) + " ";
+                 "No Reroll: <br>" + displaySortedResult(rawStats, 10000) + " ";
 
             if (offensiveRerollState === true || defensiveRerollState === true) {
 
                document.getElementById("offensiveStats").innerHTML =
-                 "Les rolls avec relance focus sur l'attaque <br>" + displayResult(resultRerollOffense, 10000) + " ";
+                 "Rolls with reroll to focus the attack statistic : <br>" + displayResult(resultRerollOffense, 10000) + " ";
 
                document.getElementById("defensiveStats").innerHTML =
-                 "Les rolls avec relance focus sur la défense <br>" + displayResult(resultRerollDefence, 10000) + " ";
+                 "Rolls with reroll to focus the defense statistic :<br>" + displayResult(resultRerollDefence, 10000) + " ";
 
                checkStatsDisplay();
             }
             else if (defensiveRerollState === true || offensiveRerollState === false){
                document.getElementById("defensiveStats").innerHTML =
-                 "Les rolls avec relance focus sur la défense <br>" + displayResult(resultRerollDefence, 10000) + " ";
+                 "Rolls with reroll to focus the defense statistic : <br>" + displayResult(resultRerollDefence, 10000) + " ";
                checkStatsDisplay();
             }
             else if (defensiveRerollState === false || offensiveRerollState === true) {
                document.getElementById("offensiveStats").innerHTML =
-                 "Les rolls avec relance focus sur l'attaque <br>" + displayResult(resultRerollOffense, 10000) + " ";
+                 "Rolls with reroll to focus the attack statistic : <br>" + displayResult(resultRerollOffense, 10000) + " ";
                checkStatsDisplay();
             }
 
             document.getElementById("statsNoReroll").innerHTML =
-               "Les rolls sans relance <br>" + displayResult(resultNoReroll, 10000) + " ";
+               "No Reroll : <br>" + displayResult(resultNoReroll, 10000) + " ";
                
             checkStatsDisplay();
          }
