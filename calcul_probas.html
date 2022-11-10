@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <style>
+         .results {column-count: 3;}
+         .sortedResults {column-count: 3;}
+
+      </style>
+   </head>
+   <body>
+
+    <form action="" method="get" class="form-example">
+        <div class="form-example">
+            <label for="number">Entrer le nombre de dés :</label>
+            <input type="number" name="number" id="number" required>
+        </div>
+    </form>
+    <br>
+    <form action="" method="get" class="form-example">
+      <div class="form-example">
+          <label for="ensemble">Définir les sorties des faces d'un dé :</label>
+          <input type="text" name="ensemble" id="ensemble" required>
+      </div>
+  </form>
+  <br>
+  <fieldset>
+      <legend>Voulez vous les stats avec reroll ?</legend>
+
+      <div>
+      <input type="checkbox" id="offensiveRerolls" name="offensiveRerolls" checked>
+      <label for="offensiveRerolls">Reroll focus sur l'attaque</label>
+      </div>
+      <div>
+         <input type="checkbox" id="defensiveRerolls" name="defensiveRerolls" checked>
+         <label for="defensiveRerolls">Reroll focus sur la défense</label>
+         </div>
+   </fieldset>
+
+   <fieldset>
+      <legend>Afficher les stats</legend>
+
+      <div>
+      <input type="checkbox" id="rerollAff" name="rerollAff" checked>
+      <label for="rerollAff">Reroll</label>
+      </div>
+      <div>
+         <input type="checkbox" id="noRerollAff" name="noRerollAff" checked>
+         <label for="noRerollAff">No Reroll</label>
+         </div>
+   </fieldset>
+
+   <br>
+
+    <button type="button" onclick="calcOutput()">Press me! uWu (J'actualise tous les changements)</button>
+
+   <div class="sortedResults">
+      <p id="offensiveSortedResults"></p>
+      <p id="defensiveSortedResults"></p>   
+      <p id="rawSortedResults"></p> 
+   </div>
+<br>
+<br>
+<br>
+   <div class="results">
+      <p id="offensiveStats"></p>
+      <p id="defensiveStats"></p>    
+      <p id="statsNoReroll"></p>
+   </div>
+
+      <script>
+         var stats = [];
+         
+         document.getElementById("offensiveStats").innerHTML =
+                 "Veuillez valider vos paramètres pour lancer le calcul";
+        
+
+         function displayResult(anArray, divide) {//result array, divisor for output to make it look like a percentage
+            var i, limit, str = "";
+            limit = anArray.length;
+            for (i = 0; i < limit; i++) {
+               str += anArray[i][0];
+               str += ": ";
+               str += anArray[i][1] / divide;
+               str += " %<br>";
+            }
+            return str;
+         }
+
+         function displaySortedResult(anArray, divide) {
+            var i, limit;
+            var count = 0;
+            var attMed = 0; 
+            var defMed = 0;
+            var str = "Probabilité de faire X attaques :<br>"
+            for (i = 0; i < anArray[0].length; i++) {
+               if(anArray[0][i] != 0) {
+                  str += i;
+                  str += ": ";
+                  str += anArray[0][i] / divide;
+                  str += " %<br>";
+                  count += anArray[0][i]
+                  attMed += i*anArray[0][i];
+               }
+            }
+
+            str += "<br>Probabilité de faire X défenses :<br>";
+            for (i = 0; i < anArray[1].length; i++) {
+               if(anArray[1][i] != 0) {
+                  str += i;
+                  str += ": ";
+                  str += anArray[1][i] / divide;
+                  str += " %<br>";
+                  defMed += i*anArray[1][i];
+               }
+            }
+            attMed = attMed/count;
+            defMed = defMed/count;
+            str += `<br>moyenne d'attaques : ` + attMed + `<br>moyenne de défenses : ` + defMed;
+            return str;
+         }
+
+
+         function trials(diceArray, times, nbDice, funct) {//die array, number of iterations, function to use
+            var i, roll, res = [];
+            for (i = 0; i < times; i++) {
+               roll = funct(diceArray, nbDice);
+               while (res.length < roll + 1) {//make result array bigger if needs be
+                  res.push(0);
+               }
+               res[roll] = res[roll] + 1;
+            }
+            var tempResult = new Array();
+            for (let j=0; j<res.length; j++) {
+               if(res[j] !== 0){
+                  tempResult.push([j, res[j]]);
+               }
+            }
+            res = tempResult;
+            return res;
+         }
+
+         function rollDie(colorDie) {//returns a random die roll result
+            return parseInt(colorDie[randIndex(colorDie.length)]);
+         }
+
+         function rollDice(colorDie, numberOfDice) {
+            res = 0;
+            for (let i=0; i<numberOfDice; i++) {
+               res += rollDie(colorDie);
+            }
+            return res;
+         }
+         function randIndex(num) {
+            return Math.floor((Math.random() * num));
+         }
+         function rollTwo(colorDie) {//simple total
+            var die1, die2;
+            die1 = rollDie(colorDie);
+            die2 = rollDie(colorDie);
+            return die1 + die2;
+         }
+
+         function defensiveReroll(colorDie, numberOfDice) {
+            var die, reroll;
+            var output = 0;
+
+            for (let i=0; i<numberOfDice; i++) {
+               die = rollDie(colorDie);
+               reroll = rollDie(colorDie);
+               if(die % 100 === 0) {
+                  die = reroll;
+               }
+               output += parseInt(die);
+            }
+            return output;
+         }
+
+         function offensiveReroll(colorDie, numberOfDice) {// if one result is zero, reroll it
+            var die, reroll;
+            var output = 0;
+
+            for (let i=0; i<numberOfDice; i++) {
+               die = rollDie(colorDie);
+               reroll = rollDie(colorDie);
+               if(die < 100) {
+                  die = reroll;
+               }
+               output += parseInt(die);
+            }
+            return output;
+         }
+
+         function checkStatsDisplay() {
+            var rerollStatsState = document.getElementById("rerollAff").checked;
+            var noRerollStatsState = document.getElementById("noRerollAff").checked;
+
+            if(noRerollStatsState === false) {
+               document.getElementById("statsNoReroll").innerHTML = {};
+            }
+            else if (rerollStatsState === false) {
+               document.getElementById("stats").innerHTML = {};
+            }
+         }
+
+         function regroupResults(anArray) {
+            var limit = anArray.length;
+            var attStats = new Array(limit).fill(0);
+            var defStats = new Array(limit).fill(0);
+
+            for (let i=0; i<limit; i++) {
+               var nbAttack = Math.floor(anArray[i][0]/100);
+               attStats[nbAttack] += anArray[i][1];
+               var nbDefence = anArray[i][0]%100;
+               defStats[nbDefence] += anArray[i][1];
+            }
+            var res = [];
+            res.push(attStats);
+            res.push(defStats);
+            return res;
+         }
+
+         function calcOutput() {
+            var nbDice = document.getElementById("number").value;
+            var diceOutputs = document.getElementById("ensemble").value;
+            var offensiveRerollState = document.getElementById("offensiveRerolls").checked;
+            var defensiveRerollState = document.getElementById("defensiveRerolls").checked;
+
+            var arrDiceOutputs = diceOutputs.replace(/\s/g, '').split(',');
+
+            stats = arrDiceOutputs;
+
+            var resultRerollOffense = trials(stats, 1000000, nbDice, offensiveReroll);
+            var resultRerollDefence = trials(stats, 1000000, nbDice, defensiveReroll);
+            var resultNoReroll = trials(stats, 1000000, nbDice, rollDice);
+
+            var sortAtt = regroupResults(resultRerollOffense);
+            document.getElementById("offensiveSortedResults").innerHTML =
+                 "Reroll focus sur l'attaque : <br>" + displaySortedResult(sortAtt, 10000) + " ";
+            var sortDef = regroupResults(resultRerollDefence);
+            document.getElementById("defensiveSortedResults").innerHTML =
+                 "Reroll focus sur la défence : <br>" + displaySortedResult(sortDef, 10000) + " ";
+
+            var rawStats = regroupResults(resultNoReroll);
+            document.getElementById("rawSortedResults").innerHTML =
+                 "Sans Reroll : <br>" + displaySortedResult(rawStats, 10000) + " ";
+
+            if (offensiveRerollState === true || defensiveRerollState === true) {
+
+               document.getElementById("offensiveStats").innerHTML =
+                 "Les rolls avec relance focus sur l'attaque <br>" + displayResult(resultRerollOffense, 10000) + " ";
+
+               document.getElementById("defensiveStats").innerHTML =
+                 "Les rolls avec relance focus sur la défense <br>" + displayResult(resultRerollDefence, 10000) + " ";
+
+               checkStatsDisplay();
+            }
+            else if (defensiveRerollState === true || offensiveRerollState === false){
+               document.getElementById("defensiveStats").innerHTML =
+                 "Les rolls avec relance focus sur la défense <br>" + displayResult(resultRerollDefence, 10000) + " ";
+               checkStatsDisplay();
+            }
+            else if (defensiveRerollState === false || offensiveRerollState === true) {
+               document.getElementById("offensiveStats").innerHTML =
+                 "Les rolls avec relance focus sur l'attaque <br>" + displayResult(resultRerollOffense, 10000) + " ";
+               checkStatsDisplay();
+            }
+
+            document.getElementById("statsNoReroll").innerHTML =
+               "Les rolls sans relance <br>" + displayResult(resultNoReroll, 10000) + " ";
+               
+            checkStatsDisplay();
+         }
+      </script>
+
+   </body>
+</html>
